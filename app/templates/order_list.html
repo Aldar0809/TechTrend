@@ -1,0 +1,43 @@
+<!-- order_list.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order List</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="/">Главная</a></li>
+                <li><a href="/account">Мой профиль</a></li>
+                <li><a href="/logout">Выход</a></li>
+        </ul>
+    </nav>
+    <h1>Order List</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Customer Name</th>
+                <th>Total Amount</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.customer_name }}</td>
+                <td>{{ order.total_amount }} $</td>
+                <td>{{ order.status }}</td>
+                <td>
+                    <a href="{{ url_for('order_details', order_id=order.id) }}">View</a>
+                    <a href="{{ url_for('cancel_order', order_id=order.id) }}">Cancel</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+   <title>My Shop</title>
+</head>
+<body>
+   <nav>
+       <div class="dropdown">
+           <button class="dropbtn">&#9776;</button>
+           <div class="dropdown-content">
+               <a href="/">Главная</a>
+               {% if current_user.is_authenticated %}
+                   <a href="/account">Мой профиль</a>
+                   <a href="/cart">Корзина {% if cart_count > 0 %} ({{ cart_count }}) {% endif %}</a>
+                   <a href="/logout">Выход</a>
+               {% else %}
+                   <a href="/login">Вход</a>
+                   <a href="/register">Регистрация</a>
+                   <a href="/cart">Корзина {% if cart_count > 0 %} ({{ cart_count }}) {% endif %}</a>
+               {% endif %}
+           </div>
+       </div>
+   </nav>
+   <h1>Tech Trend</h1>
+   <ul>
+       {% for product in products %}
+       <li>
+           <img src="{{ product.image }}" alt="{{ product.name }}" width="160" height="167">
+           <div class="product-info">
+               {{ product.name }} - {{ product.price }} $
+           </div>
+           <form method="post" action="{{ url_for('cart') }}">
+               <input type="hidden" name="product_id" value="{{ product.id }}">
+               <button class="add-to-cart" type="submit" name="action" value="add">Add to Cart</button>
+           </form>
+       </li>
+       {% if loop.index % 5 == 0 %}
+        </ul><ul>
+        {% endif %}
+       {% endfor %}
+   </ul>
+   <a href="{{ url_for('cart') }}"><button class="btn-view-cart">View Cart</button></a>
+
+   <script>
+       // Закрытие выпадающего меню при клике за его пределами
+       window.onclick = function(event) {
+           if (!event.target.matches('.dropbtn')) {
+               var dropdowns = document.getElementsByClassName("dropdown-content");
+               var i;
+               for (i = 0; i < dropdowns.length; i++) {
+                   var openDropdown = dropdowns[i];
+                   if (openDropdown.classList.contains('show')) {
+                       openDropdown.classList.remove('show');
+                   }
+               }
+           }
+       }
+   </script>
+</body>
+</html>

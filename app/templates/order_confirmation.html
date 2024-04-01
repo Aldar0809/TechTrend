@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        nav {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+        }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        nav li {
+            margin-right: 20px;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        p {
+            margin-bottom: 10px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        a {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            text-align: center;
+            padding: 10px;
+            background-color: #333;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        a:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="/">Главная</a></li>
+            <li><a href="/account">Мой профиль</a></li>
+            <li><a href="/logout">Выход</a></li>
+        </ul>
+    </nav>
+    <h1>Спасибо за ваш заказ!</h1>
+    <p>Заказ #: {{ order.id }}</p>
+    <p>Покупатель: {{ order.customer_name }}</p>
+    <p>Адрес: {{ order.customer_address }}</p>
+    <p>Метод Оплаты: {{ order.payment_method }}</p>
+    <h2>Детали Заказа:</h2>
+    <ul>
+        {% for item in order.order_items %}
+        <li>{{ item.product.name }} - {{ item.product.price }} $</li>
+        {% endfor %}
+    </ul>
+    <p>Итого: {{ order.total_amount }} $</p>
+    <a href="{{ url_for('index') }}">Продолжить покупки</a>
+</body>
+</html>
