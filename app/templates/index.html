@@ -5,6 +5,56 @@
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
    <title>TechTrend</title>
+    <style>
+        .filter-form {
+            margin-bottom: 20px;
+        }
+
+        .filter-form label {
+            margin-right: 10px;
+        }
+
+        .filter-form select {
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+        }
+
+        .filter-form button {
+            padding: 5px 10px;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .filter-form button:hover {
+            background-color: #0056b3;
+        }
+
+        .filter-group {
+            margin-top: 6px;
+            margin-left: 20px; /* Отступ между группами */
+        }
+
+        .filter-group label {
+            margin-right: 5px;
+        }
+
+        .filter-group select {
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .filter-button {
+            display: block;
+            margin-left: 20px;
+            margin-top: 6px; /* Отступ над кнопкой */
+        }
+    </style>
 </head>
 <body>
    <nav>
@@ -17,6 +67,7 @@
                    <a href="/account">Мой Профиль</a>
                    <a href="/cart">Корзина {% if cart_count > 0 %} ({{ cart_count }}) {% endif %}</a>
                    <a href="/logout">Выход</a>
+                   <a href="/about_us">О нас</a>
                {% else %}
                    <a href="/login">Вход</a>
                    <a href="/register">Регистрация</a>
@@ -26,6 +77,27 @@
        </div>
    </nav>
    <h1>Tech Trend</h1>
+   <form class="filter-form" action="/" method="get">
+        <div class="filter-group">
+            <label for="category">Категория:</label>
+            <select id="category" name="category">
+                <option value="">Все</option>
+                {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="brand">Бренд:</label>
+            <select id="brand" name="brand">
+                <option value="">Все</option>
+                {% for brand in brands %}
+                    <option value="{{ brand.id }}">{{ brand.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="filter-button">Применить Фильтры</button>
+    </form>
    <ul>
        {% for product in products %}
        <li>

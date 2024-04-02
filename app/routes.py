@@ -16,6 +16,12 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+@app.route('/about_us')
+def about_us():
+    cart_count = len(session.get('cart', []))
+    return render_template('about_us.html', cart_count=cart_count)
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -81,11 +87,27 @@ def account():
 
 @app.route('/')
 def index():
-    products = Product.query.all()
+    category_id = request.args.get('category')
+    brand_id = request.args.get('brand')
+
+    products_query = Product.query
+
+    if category_id:
+        products_query = products_query.filter_by(category_id=category_id)
+    if brand_id:
+        products_query = products_query.filter_by(brand_id=brand_id)
+
+    products = products_query.all()
+
     # Получить количество товаров в корзине из сессии
     cart_count = len(session.get('cart', []))
-    # Отобразить страницу и передать количество товаров в корзине
-    return render_template('index.html', products=products, cart_count=cart_count)
+
+    # Получить список всех категорий и брендов для фильтров
+    categories = Category.query.all()
+    brands = Brand.query.all()
+
+    return render_template('index.html', cart_count=cart_count, products=products, categories=categories, brands=brands)
+
 
 
 @login_required
