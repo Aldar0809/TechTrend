@@ -1,19 +1,56 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-   <title>Account</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        h1 {
+            text-align: center;
+            margin-top: 30px;
+        }
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        input[type="text"],
+        input[type="email"],
+        button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button[type="submit"] {
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+        }
+        button[type="submit"]:hover {
+            background-color: #555;
+        }
+    </style>
 </head>
 <body>
-   <nav>
+    <nav>
        <div class="dropdown">
            <button class="dropbtn">&#9776;</button>
            <div class="dropdown-content">
                <a href="/">Главная</a>
                {% if current_user.is_authenticated %}
-                   <a href="/account">Мой профиль</a>
+                   <a href="/orders">Заказы</a>
                    <a href="/cart">Корзина {% if cart_count > 0 %} ({{ cart_count }}) {% endif %}</a>
                    <a href="/logout">Выход</a>
                {% else %}
@@ -24,20 +61,17 @@
            </div>
        </div>
    </nav>
-   <h1>Account</h1>
-   <h2>Orders</h2>
-   <ul>
-       {% for order in orders %}
-       <li>
-           Заказ #{{ order.id }}</br>
-           {{ order.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
-
-           <a href="{{ url_for('order_details', order_id=order.id) }}"><button>Посмотреть</button></a>
-       </li>
-       {% if loop.index % 4 == 0 %}
-        </ul><ul>
-        {% endif %}
-       {% endfor %}
-   </ul>
+    <h1>Личный кабинет</h1>
+    <form method="post">
+        <label for="name">Имя:</label>
+        <input type="text" id="name" name="name" value="{{ current_user.name }}">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" value="{{ current_user.email }}">
+        <button type="submit">Сохранить</button>
+    </form>
+    </br></br></br>
+    <p>
+        Это - страница для замены данных
+    </p>
 </body>
 </html>

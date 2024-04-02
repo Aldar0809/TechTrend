@@ -1,5 +1,5 @@
 from collections import Counter
-from flask import render_template, redirect, url_for, request, session, flash
+from flask import abort, render_template, redirect, url_for, request, session, flash
 from .extensions import app, db
 from .models import Product, Category, Brand, Order, OrderItem
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -58,12 +58,25 @@ def logout():
     return redirect(url_for('index'))
 
 
-@app.route('/account')
+@app.route('/account', methods=['GET', 'POST'])
 @login_required
 def account():
-    orders = Order.query.filter_by(user_id=current_user.id).all()
     cart_count = len(session.get('cart', []))
-    return render_template('account.html', user=current_user, orders=orders, cart_count=cart_count)
+    if request.method == 'POST':
+        new_name = request.form.get('name')
+        new_email = request.form.get('email')
+
+        # Обновляем имя и email пользователя, если они были изменены
+        if new_name and new_name != current_user.name:
+            current_user.name = new_name
+        if new_email and new_email != current_user.email:
+            current_user.email = new_email
+
+        db.session.commit()
+        flash('Информация о пользователе успешно обновлена.', 'success')
+        return redirect(url_for('account'))
+
+    return render_template('account.html', cart_count=cart_count)
 
 
 @app.route('/')
@@ -75,15 +88,21 @@ def index():
     return render_template('index.html', products=products, cart_count=cart_count)
 
 
+@login_required
 @app.route('/products')
 def product_list():
+    if current_user.role != 'admin':
+        abort(403)
     products = Product.query.all()
     return render_template('product_list.html', products=products)
 
 
+@login_required
 @app.route('/product/create_product', methods=['GET', 'POST'])
 def create_product():
-    if request.method == 'POST':
+    if current_user.role != 'admin':
+        abort(403)
+    elif request.method == 'POST':
         name = request.form['name']
         description = request.form['description']
         price = request.form['price']
@@ -108,14 +127,20 @@ def create_product():
     return render_template('product_form.html', categories=categories, brands=brands)
 
 
+@login_required
 @app.route('/product/<int:product_id>')
 def product_detail(product_id):
+    if current_user.role != 'admin':
+        abort(403)
     product = Product.query.get(product_id)
     return render_template('product_detail.html', product=product)
 
 
+@login_required
 @app.route('/product/<int:product_id>/edit', methods=['GET', 'POST'])
 def edit_product(product_id):
+    if current_user.role != 'admin':
+        abort(403)
     product = Product.query.get(product_id)
     if request.method == 'POST':
         product.name = request.form['name']
@@ -132,8 +157,11 @@ def edit_product(product_id):
     return render_template('product_form.html', product=product, categories=categories, brands=brands)
 
 
+@login_required
 @app.route('/product/<int:product_id>/delete', methods=['POST'])
 def delete_product(product_id):
+    if current_user.role != 'admin':
+        abort(403)
     product = Product.query.get(product_id)
     if product:
         db.session.delete(product)
@@ -226,20 +254,41 @@ def order_confirmation(order_id):
 @app.route('/orders')
 @login_required
 def order_list():
+    cart_count = len(session.get('cart', []))
     orders = current_user.orders  # Получаем заказы текущего пользователя
-    return render_template('order_list.html', orders=orders)
+    return render_template('order_list.html', orders=orders, cart_count= cart_count)
 
 
 @app.route('/order/<int:order_id>/cancel', methods=['POST'])
 def cancel_order(order_id):
     order = Order.query.get(order_id)
-    if order:
-        order.status = 'Cancelled'
-        db.session.commit()
-    return redirect(url_for('order_list'))
+    if order.user_id == current_user.id:
+        if order:
+            order.status = 'Отменен'
+            db.session.commit()
+            flash('Заказ успешно отменен.', 'success')
+        else:
+            flash('Заказ не найден.', 'danger')
+        return redirect(url_for('order_list'))
+    else:
+        return 404
 
 
 @app.route('/order/<int:order_id>')
 def order_details(order_id):
     order = Order.query.get(order_id)
-    return render_template('order_details.html', order=order)
+    cart_count = len(session.get('cart', []))
+    print(order.status)
+    return render_template('order_details.html', order=order, cart_count=cart_count)
+
+
+# Обработка ошибки 404 (Page Not Found)
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('404.html'), 404
+
+
+# Обработка ошибки 403 (Access Denied)
+@app.errorhandler(403)
+def access_denied(error):
+    return render_template('403.html'), 403

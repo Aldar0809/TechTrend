@@ -1,42 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>{% if product %}Edit Product{% else %}Create Product{% endif %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <title>{% if product %}Изменение Продукта{% else %}Создание Продукта{% endif %}</title>
 </head>
 <body>
     <nav>
-        <ul>
-            <li><a href="/">Главная</a></li>
-                <li><a href="/account">Мой профиль</a></li>
-                <li><a href="/logout">Выход</a></li>
-        </ul>
-    </nav>
-    <h1>{% if product %}Edit Product{% else %}Create Product{% endif %}</h1>
-    <form method="post">
-        <label for="name">Name:</label>
+       <div class="dropdown">
+           <button class="dropbtn">&#9776;</button>
+           <div class="dropdown-content">
+               <a href="/">Главная</a>
+               <a href="/logout">Выход</a>
+           </div>
+       </div>
+   </nav>
+    <h1>{% if product %}Изменение Продукта{% else %}Создание Продукта{% endif %}</h1>
+    <form class="product-form" method="post">
+        <label for="name">Название:</label>
         <input type="text" id="name" name="name" value="{% if product %}{{ product.name }}{% endif %}" required>
-        <label for="description">Description:</label>
+        <label for="description">Описание:</label>
         <textarea id="description" name="description" required>{% if product %}{{ product.description }}{% endif %}</textarea>
-        <label for="price">Price:</label>
-        <input type="number" id="price" name="price" value="{% if product %}{{ product.price }}{% endif %}" step="0.01" required>
-        <label for="category">Category:</label>
+        <label for="price">Цена:</label>
+        <input type="number" id="price" name="price" value="{% if product %}{{ product.price }}{% endif %}" step="0.1" required>
+        <label for="category">Категория:</label>
         <select id="category" name="category" required>
-            <option value="">Select a category</option>
+            <option value="">Выберите категорию</option>
             {% for category in categories %}
             <option value="{{ category.id }}" {% if product and product.category_id == category.id %}selected{% endif %}>{{ category.name }}</option>
             {% endfor %}
         </select>
-        <label for="brand">Brand:</label>
+        <label for="brand">Бренд:</label>
         <select id="brand" name="brand" required>
-            <option value="">Select a brand</option>
+            <option value="">Выберите бренд</option>
             {% for brand in brands %}
             <option value="{{ brand.id }}" {% if product and product.brand_id == brand.id %}selected{% endif %}>{{ brand.name }}</option>
             {% endfor %}
         </select>
-        <label for="image">Image URL:</label>
+        <label for="image">Ссылка на картинку:</label>
         <input type="text" id="image" name="image" value="{% if product %}{{ product.image }}{% endif %}" required>
-        <button type="submit">Save</button>
+        <button type="submit">Сохранить</button>
     </form>
 </body>
 </html>
