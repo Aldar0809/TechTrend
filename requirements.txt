@@ -1,2 +1,5 @@
-Flask
+flask
+requests
 Werkzeug
+flask_sqlalchemy
+flask_login
