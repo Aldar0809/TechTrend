@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <title>Вход</title>
     <style>
         body {
@@ -83,10 +84,38 @@
 </head>
 <body>
     <nav>
-        <ul>
-            <li><a href="/">Главная</a></li>
-        </ul>
-    </nav>
+       <div class="dropdown">
+           <button class="dropbtn">&#9776;</button>
+           <div class="dropdown-content">
+               <a href="/">Главная</a>
+               <a href="/register">Регистрация</a>
+               <a href="/cart">Корзина</a>
+           </div>
+       </div>
+   </nav>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flash-messages">
+                {% for category, message in messages %}
+                    <li class="{{ category }} flash-message">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <script>
+        // Автоматически скрыть сообщения через 5 секунд
+        document.addEventListener('DOMContentLoaded', function() {
+            var flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(function(message) {
+                setTimeout(function() {
+                    message.style.opacity = '1';
+                }, 100); // Задержка перед началом анимации появления
+                setTimeout(function() {
+                    message.style.opacity = '0';
+                }, 4000); // Задержка перед началом анимации исчезновения (4 секунды)
+            });
+        });
+    </script>
     <h1>Вход</h1>
     <form method="post">
         <label for="email">Почта:</label>
@@ -94,6 +123,7 @@
         <label for="password">Пароль:</label>
         <input type="password" id="password" name="password" required>
         <button type="submit">Войти</button>
+        <p class="login-link">Нет учетной записи? <a href="/login">Регистрация</a></p>
     </form>
 </body>
 </html>

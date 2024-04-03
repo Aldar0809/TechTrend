@@ -2,7 +2,9 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <title>Регистрация</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -83,12 +85,39 @@
 </head>
 <body>
     <nav>
-        <ul>
-            <li><a href="/">Главная</a></li>
-            <li><a href="/login">Вход</a></li>
-        </ul>
-    </nav>
+       <div class="dropdown">
+           <button class="dropbtn">&#9776;</button>
+           <div class="dropdown-content">
+               <a href="/">Главная</a>
+               <a href="/login">Вход</a>
+               <a href="/cart">Корзина</a>
+           </div>
+       </div>
+   </nav>
     <h1>Регистрация</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flash-messages">
+                {% for category, message in messages %}
+                    <li class="{{ category }} flash-message">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <script>
+        // Автоматически скрыть сообщения через 5 секунд
+        document.addEventListener('DOMContentLoaded', function() {
+            var flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(function(message) {
+                setTimeout(function() {
+                    message.style.opacity = '1';
+                }, 100); // Задержка перед началом анимации появления
+                setTimeout(function() {
+                    message.style.opacity = '0';
+                }, 4000); // Задержка перед началом анимации исчезновения (4 секунды)
+            });
+        });
+    </script>
     <form method="post">
         <label for="name">Имя:</label>
         <input type="text" id="name" name="name" required>
@@ -97,6 +126,7 @@
         <label for="password">Пароль:</label>
         <input type="password" id="password" name="password" required>
         <button type="submit">Зарегистрироваться</button>
+        <p class="login-link">Уже есть аккаунт? <a href="/login">Войти</a></p>
     </form>
 </body>
 </html>

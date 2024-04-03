@@ -1,5 +1,6 @@
 from collections import Counter
 from flask import abort, render_template, redirect, url_for, request, session, flash
+from sqlalchemy.exc import IntegrityError
 from .extensions import app, db
 from .models import Product, Category, Brand, Order, OrderItem
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -31,6 +32,7 @@ def register():
 
         user = User.query.filter_by(email=email).first()
         if user:
+            flash('Пользователь с таким email адресом уже существует.', 'error')
             # Пользователь с таким email уже существует
             return redirect(url_for('register'))
 
@@ -53,6 +55,8 @@ def login():
         if user and check_password_hash(user.password, password):
             login_user(user)
             return redirect(url_for('index'))
+        else:
+            flash('Учетной записи с этими данными не существует.', 'error')
 
     return render_template('login.html')
 
@@ -107,7 +111,6 @@ def index():
     brands = Brand.query.all()
 
     return render_template('index.html', cart_count=cart_count, products=products, categories=categories, brands=brands)
-
 
 
 @login_required
@@ -184,10 +187,14 @@ def edit_product(product_id):
 def delete_product(product_id):
     if current_user.role != 'admin':
         abort(403)
-    product = Product.query.get(product_id)
-    if product:
+    product = Product.query.get_or_404(product_id)
+    try:
         db.session.delete(product)
         db.session.commit()
+        flash('Продукт успешно удален', 'success')
+    except IntegrityError:
+        db.session.rollback()
+        flash('Не удается удалить товар, поскольку он связан с существующими заказами.', 'error')
     return redirect(url_for('product_list'))
 
 
@@ -267,10 +274,14 @@ def checkout():
     return render_template('checkout.html')
 
 
+@login_required
 @app.route('/order-confirmation/<int:order_id>')
 def order_confirmation(order_id):
+    cart_count = len(session.get('cart', []))
     order = Order.query.get(order_id)
-    return render_template('order_confirmation.html', order=order)
+    if order.user_id != current_user.id:
+        abort(404)
+    return render_template('order_confirmation.html', order=order, cart_count=cart_count)
 
 
 @app.route('/orders')
@@ -281,6 +292,7 @@ def order_list():
     return render_template('order_list.html', orders=orders, cart_count= cart_count)
 
 
+@login_required
 @app.route('/order/<int:order_id>/cancel', methods=['POST'])
 def cancel_order(order_id):
     order = Order.query.get(order_id)
@@ -293,14 +305,16 @@ def cancel_order(order_id):
             flash('Заказ не найден.', 'danger')
         return redirect(url_for('order_list'))
     else:
-        return 404
+        abort(404)
 
 
+@login_required
 @app.route('/order/<int:order_id>')
 def order_details(order_id):
     order = Order.query.get(order_id)
     cart_count = len(session.get('cart', []))
-    print(order.status)
+    if order.user_id != current_user.id:
+        abort(404)
     return render_template('order_details.html', order=order, cart_count=cart_count)
 
 

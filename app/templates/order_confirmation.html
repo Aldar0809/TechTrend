@@ -2,79 +2,28 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Информация о заказе</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
-        }
-
-        nav {
-            background-color: #333;
-            color: #fff;
-            padding: 10px;
-        }
-
-        nav ul {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-        }
-
-        nav li {
-            margin-right: 20px;
-        }
-
-        nav a {
-            color: #fff;
-            text-decoration: none;
-        }
-
-        h1 {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        p {
-            margin-bottom: 10px;
-        }
-
-        ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        a {
-            display: block;
-            width: 200px;
-            margin: 20px auto;
-            text-align: center;
-            padding: 10px;
-            background-color: #333;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-
-        a:hover {
-            background-color: #555;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Спасибо за покупку!</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
     <nav>
-        <ul>
-            <li><a href="/">Главная</a></li>
-            <li><a href="/account">Мой профиль</a></li>
-            <li><a href="/logout">Выход</a></li>
-        </ul>
-    </nav>
+       <div class="dropdown">
+           <button class="dropbtn">&#9776;</button>
+           <div class="dropdown-content">
+               <a href="/">Главная</a>
+               {% if current_user.is_authenticated %}
+                   <a href="/orders">Заказы</a>
+                   <a href="/cart">Корзина {% if cart_count > 0 %} ({{ cart_count }}) {% endif %}</a>
+                   <a href="/logout">Выход</a>
+               {% else %}
+                   <a href="/login">Вход</a>
+                   <a href="/register">Регистрация</a>
+                   <a href="/cart">Корзина {% if cart_count > 0 %} ({{ cart_count }}) {% endif %}</a>
+               {% endif %}
+           </div>
+       </div>
+   </nav>
     <h1>Спасибо за ваш заказ!</h1>
     <p>Заказ #: {{ order.id }}</p>
     <p>Покупатель: {{ order.customer_name }}</p>
@@ -86,7 +35,7 @@
         <li>{{ item.product.name }} - {{ item.product.price }} $</li>
         {% endfor %}
     </ul>
-    <p>Итого: {{ order.total_amount }} $</p>
+    <p><strong>Итого: {{ order.total_amount }} $</strong></p>
     <a href="{{ url_for('index') }}">Продолжить покупки</a>
 </body>
 </html>

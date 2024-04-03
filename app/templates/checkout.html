@@ -111,6 +111,29 @@
        </div>
    </nav>
     <h1>Оформление заказа</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flash-messages">
+                {% for category, message in messages %}
+                    <li class="{{ category }} flash-message">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <script>
+        // Автоматически скрыть сообщения через 5 секунд
+        document.addEventListener('DOMContentLoaded', function() {
+            var flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(function(message) {
+                setTimeout(function() {
+                    message.style.opacity = '1';
+                }, 100); // Задержка перед началом анимации появления
+                setTimeout(function() {
+                    message.style.opacity = '0';
+                }, 4000); // Задержка перед началом анимации исчезновения (4 секунды)
+            });
+        });
+    </script>
     <form method="post" action="{{ url_for('checkout') }}">
         <label for="customer_name">Имя</label>
         <input type="text" id="customer_name" name="customer_name" required>
