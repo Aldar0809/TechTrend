@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Установка минимальной высоты равной 100% высоты видимой области */
+        }
+
+        .product-info {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 1000px;
+            margin: auto;
+            margin-top: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: row; /* Горизонтальное расположение элементов */
+        }
+
+        img {
+            max-width: 40%;
+            height: 40%;
+            margin-right: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .description {
+            margin: 0;
+            color: #666;
+        }
+
+        .price {
+            font-weight: bold;
+            color: #009688;
+            margin: 10px 0;
+        }
+
+        .btn-back {
+            display: block;
+            width: 120px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-back:hover {
+            background-color: #555;
+        }
+
+        .add-to-cart {
+            margin-left: 10px
+        }
+
+        .reviews {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .reviews h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .reviews form {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .reviews form textarea {
+            width: 100%;
+            max-width: 500px; /* Ширина ввода текста */
+            height: 100px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .reviews form button {
+            padding: 10px 20px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            max-width: 200px; /* Ширина кнопки */
+        }
+
+        .reviews form button:hover {
+            background-color: #555;
+        }
+
+        .reviews li {
+            margin-bottom: 10px;
+        }
+
+        .reviews li span {
+            font-weight: bold;
+            color: #009688;
+        }
+
+        .reviews p {
+            margin-top: 10px;
+            color: #666;
+        }
+
+       .reviews-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        /* Стили для элемента отзыва */
+        .review-item {
+            margin-bottom: 20px;
+        }
+
+        /* Стили для контейнера комментария */
+        .review-content {
+            display: flex;
+            flex-direction: column-reverse; /* Элементы внутри комментария располагаются в столбец с обратным порядком */
+        }
+
+        /* Стили для текста отзыва */
+        .review-text {
+            font-size: 16px;
+            margin-top: 10px;
+            word-wrap: break-word;
+        }
+
+        /* Стили для информации об отзыве (пользователь, дата) */
+        .review-info {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Стили для имени пользователя */
+        .review-user {
+            font-weight: bold;
+        }
+
+        /* Стили для даты отзыва */
+        .review-date {
+            font-style: italic;
+        }
+
+        /* Улучшение стилей для мобильных устройств */
+        @media (max-width: 768px) {
+            .product-info {
+                flex-direction: column; /* Изменение направления флексбокса на вертикальное на мобильных устройствах */
+                align-items: center; /* Выравнивание элементов по центру на мобильных устройствах */
+                text-align: center; /* Выравнивание текста по центру на мобильных устройствах */
+            }
+
+            img {
+                max-width: 80%; /* Увеличение максимальной ширины изображения на мобильных устройствах */
+                margin-right: 0; /* Удаление отступа справа для изображения на мобильных устройствах */
+                margin-bottom: 20px; /* Добавление отступа снизу для изображения на мобильных устройствах */
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <nav>
+       <div class="dropdown">
+           <button class="dropbtn">&#9776;</button>
+           <div class="dropdown-content">
+               <a href="/">Главная</a>
+               {% if current_user.is_authenticated %}
+                   <a href="/orders">Заказы</a>
+                   <a href="/cart">Корзина {% if cart_count > 0 %} ({{ cart_count }}) {% endif %}</a>
+                   <a href="/logout">Выход</a>
+               {% else %}
+                   <a href="/login">Вход</a>
+                   <a href="/register">Регистрация</a>
+                   <a href="/cart">Корзина {% if cart_count > 0 %} ({{ cart_count }}) {% endif %}</a>
+               {% endif %}
+           </div>
+       </div>
+    </nav>
+    <div class="product-info">
+        <img src="{{ product.image }}" alt="{{ product.name }}">
+        <div>
+            <h1>{{ product.name }}</h1>
+            <p class="description">{{ product.description }}</p>
+        </div>
+        <div>
+            <p class="price">{{ product.price }} ₽</p>
+            <form method="post" action="{{ url_for('cart') }}">
+               <input type="hidden" name="product_id" value="{{ product.id }}">
+               <button class="add-to-cart" type="submit" name="action" value="add">В корзину</button>
+            </form>
+        </div>
+    </div>
+    <div class="reviews">
+        <h2>Отзывы</h2>
+        <!-- Форма отправки отзыва -->
+        <form method="post" action="{{ url_for('add_review') }}">
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <textarea name="comment"></textarea>
+            <button type="submit">Отправить отзыв</button>
+        </form>
+
+
+        <!-- Отображение существующих отзывов -->
+        {% if product.reviews %}
+            <ul class="reviews-list">
+                {% for review in product.reviews %}
+                    <li class="review-item">
+                        <div class="review-content">
+                            <div class="review-text">{{ review.text }}</div>
+                            <div class="review-info">
+                                <span class="review-user">{{ review.user.name }}</span>
+                                <br>
+                                <span class="review-date">{{ review.timestamp|custom_date_format }}</span>
+                            </div>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Пока нет отзывов. Будьте первым, кто оставит свой!</p>
+        {% endif %}
+    </div>
+
+    <a href="/" class="btn-back">Назад</a>
+</body>
+</html>
