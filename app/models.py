@@ -1,5 +1,6 @@
 from .extensions import db
 from flask_login import UserMixin
+from datetime import datetime
 
 
 class User(UserMixin, db.Model):
@@ -21,6 +22,19 @@ class Product(db.Model):
     brand_id = db.Column(db.Integer, db.ForeignKey('brand.id'), nullable=False)
     brand = db.relationship('Brand', backref=db.backref('products', lazy='dynamic'))
     image = db.Column(db.String(100), nullable=False)
+
+
+class Review(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.Text)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    user = db.relationship('User', backref='reviews')  # Изменение обратной ссылки на 'reviews'
+    product = db.relationship('Product', backref='reviews')  # Отношение к пользователю
+
+    def __repr__(self):
+        return f'<Review {self.id}>'
 
 
 class Category(db.Model):

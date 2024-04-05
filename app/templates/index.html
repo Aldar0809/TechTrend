@@ -6,6 +6,11 @@
    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
    <title>TechTrend</title>
     <style>
+        li a {
+            color: #000;
+            text-decoration: none;
+        }
+
         .filter-form {
             margin-bottom: 20px;
         }
@@ -116,14 +121,16 @@
             <ul>
                {% for product in products %}
                <li>
-                   <img src="{{ product.image }}" alt="{{ product.name }}" width="160" height="167">
-                   <div class="product-info">
-                       {{ product.name }} - {{ product.price }} ₽
-                   </div>
-                   <form method="post" action="{{ url_for('cart') }}">
-                       <input type="hidden" name="product_id" value="{{ product.id }}">
-                       <button class="add-to-cart" type="submit" name="action" value="add">В корзину</button>
-                   </form>
+                   <a href="product/{{ product.id }}">
+                       <img src="{{ product.image }}" alt="{{ product.name }}" width="160" height="167">
+                       <div class="product-info">
+                           {{ product.name }} - {{ product.price }} ₽
+                       </div>
+                       <form method="post" action="{{ url_for('cart') }}">
+                           <input type="hidden" name="product_id" value="{{ product.id }}">
+                           <button class="add-to-cart" type="submit" name="action" value="add">В корзину</button>
+                       </form>
+                   </a>
                </li>
                {% if loop.index % 4 == 0 %}
                 </ul><ul>

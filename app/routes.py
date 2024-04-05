@@ -4,12 +4,21 @@ from sqlalchemy.exc import IntegrityError
 from .extensions import app, db
 from .models import Product, Category, Brand, Order, OrderItem
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from .models import User
+from .models import User, Review
+from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
+
+def custom_date_format(date):
+    now = datetime.now()
+    if date.year != now.year:
+        return date.strftime('%d %B %Y')
+    else:
+        return date.strftime('%d %B')
 
 
 @login_manager.user_loader
@@ -152,13 +161,37 @@ def create_product():
     return render_template('product_form.html', categories=categories, brands=brands)
 
 
-@login_required
-@app.route('/product/<int:product_id>')
+@app.route('/product/<int:product_id>', methods=['GET', 'POST'])
 def product_detail(product_id):
-    if current_user.role != 'admin':
-        abort(403)
-    product = Product.query.get(product_id)
-    return render_template('product_detail.html', product=product)
+    cart_count = len(session.get('cart', []))
+    product = Product.query.get_or_404(product_id)
+    if not product:
+        abort(404)
+    if request.method == 'POST':
+        comment = request.form['comment']
+        if comment:
+            review = Review(comment=comment, product_id=product_id)
+            db.session.add(review)
+            db.session.commit()
+            return redirect(url_for('product_detail', product_id=product_id))
+    return render_template('product_detail.html', product=product, cart_count=cart_count)
+
+
+@login_required
+@app.route('/add_review', methods=['POST'])
+def add_review():
+    if current_user.is_authenticated:
+        product_id = request.form.get('product_id')
+        text = request.form.get('comment')
+        user_id = current_user.id
+        if text:
+            review = Review(text=text, product_id=product_id, user_id=user_id)
+            db.session.add(review)
+            db.session.commit()
+            return redirect(url_for('product_detail', product_id=product_id))
+    # В случае, если пользователь не аутентифицирован, вы можете перенаправить его на страницу входа
+    flash('Вы должны войти, чтобы оставить отзыв.', 'error')
+    return redirect(url_for('login'))
 
 
 @login_required
@@ -328,3 +361,6 @@ def page_not_found(error):
 @app.errorhandler(403)
 def access_denied(error):
     return render_template('403.html'), 403
+
+
+app.jinja_env.filters['custom_date_format'] = custom_date_format
