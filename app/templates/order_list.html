@@ -104,7 +104,7 @@
         <tr>
             <td>{{ order.id }}</td>
             <td>{{ order.customer_name }}</td>
-            <td>{{ order.total_amount }} $</td>
+            <td>{{ order.total_amount }} ₽</td>
             <td>{{ order.status }}</td>
             <td>
                 <form action="{{ url_for('order_details', order_id=order.id) }}" method="get">

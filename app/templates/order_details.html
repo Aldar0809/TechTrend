@@ -5,6 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Детали заказа</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 50px; /* Добавляем отступ сверху, чтобы форма не была прижата к верху страницы */
+        }
+
+        form label,
+        form input,
+        form select,
+        form button {
+            margin-bottom: 10px; /* Отступ между элементами формы */
+        }
+    </style>
 </head>
 <body>
     <nav>
@@ -32,7 +48,7 @@
     <h2>Товары в заказе:</h2>
     <ul>
         {% for item in order.order_items %}
-        <li>{{ item.product.name }} - {{ item.product.price }} $ x {{ item.quantity }}</li>
+        <li>{{ item.product.name }} - {{ item.product.price }} ₽ x {{ item.quantity }}</li>
         {% endfor %}
     </ul>
     <p>Итого: {{ order.total_amount }} $</p>
@@ -44,7 +60,7 @@
             <option value="Выполнен">Выполнен</option>
             <option value="Отменен">Отменен</option>
         </select>
-        <button type="submit">Изменить статус</button>
+        <button type="submit" class="custom-button">Изменить статус</button>
     </form>
     {% endif %}
 </body>
