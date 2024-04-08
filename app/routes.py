@@ -328,27 +328,31 @@ def order_list():
 @login_required
 @app.route('/order/<int:order_id>/cancel', methods=['POST'])
 def cancel_order(order_id):
-    order = Order.query.get(order_id)
-    if order.user_id == current_user.id:
-        if order:
-            order.status = 'Отменен'
-            db.session.commit()
-            flash('Заказ успешно отменен.', 'success')
+    if current_user.is_authenticated:
+        order = Order.query.get(order_id)
+        if order.user_id == current_user.id:
+            if order:
+                order.status = 'Отменен'
+                db.session.commit()
+                flash('Заказ успешно отменен.', 'success')
+            else:
+                flash('Заказ не найден.', 'danger')
+            return redirect(url_for('order_list'))
         else:
-            flash('Заказ не найден.', 'danger')
-        return redirect(url_for('order_list'))
-    else:
-        abort(404)
+            abort(404)
+    abort(404)
 
 
 @login_required
 @app.route('/order/<int:order_id>')
 def order_details(order_id):
-    order = Order.query.get(order_id)
-    cart_count = len(session.get('cart', []))
-    if order.user_id != current_user.id:
-        abort(404)
-    return render_template('order_details.html', order=order, cart_count=cart_count)
+    if current_user.is_authenticated:
+        order = Order.query.get(order_id)
+        cart_count = len(session.get('cart', []))
+        if order.user_id != current_user.id:
+            abort(404)
+        return render_template('order_details.html', order=order, cart_count=cart_count)
+    abort(404)
 
 
 # Обработка ошибки 404 (Page Not Found)
