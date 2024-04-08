@@ -36,5 +36,16 @@
         {% endfor %}
     </ul>
     <p>Итого: {{ order.total_amount }} $</p>
+    {% if role %}
+    <form action="{{ url_for('change_order_status', order_id=order.id) }}" method="post">
+        <label for="new_status">Новый статус:</label>
+        <select id="new_status" name="new_status">
+            <option value="В обработке">В обработке</option>
+            <option value="Выполнен">Выполнен</option>
+            <option value="Отменен">Отменен</option>
+        </select>
+        <button type="submit">Изменить статус</button>
+    </form>
+    {% endif %}
 </body>
 </html>

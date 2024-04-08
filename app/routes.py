@@ -322,7 +322,11 @@ def order_confirmation(order_id):
 def order_list():
     cart_count = len(session.get('cart', []))
     orders = current_user.orders  # Получаем заказы текущего пользователя
-    return render_template('order_list.html', orders=orders, cart_count= cart_count)
+    role = False
+    if current_user.role == 'admin':
+        orders = Order.query.all()
+        role = True
+    return render_template('order_list.html', orders=orders, cart_count=cart_count, role=role)
 
 
 @login_required
@@ -346,13 +350,29 @@ def cancel_order(order_id):
 @login_required
 @app.route('/order/<int:order_id>')
 def order_details(order_id):
-    if current_user.is_authenticated:
-        order = Order.query.get(order_id)
-        cart_count = len(session.get('cart', []))
-        if order.user_id != current_user.id:
-            abort(404)
-        return render_template('order_details.html', order=order, cart_count=cart_count)
-    abort(404)
+    try:
+        role = False
+        if current_user.role == 'admin':
+            role = True
+        if current_user.is_authenticated:
+            order = Order.query.get(order_id)
+            cart_count = len(session.get('cart', []))
+            if order.user_id != current_user.id and role is False:
+                abort(404)
+            return render_template('order_details.html', order=order, cart_count=cart_count, role=role)
+        abort(404)
+    except AttributeError:
+        abort(404)
+
+
+@app.route('/order/<int:order_id>/change_status', methods=['POST'])
+@login_required
+def change_order_status(order_id):
+    order = Order.query.get_or_404(order_id)
+    new_status = request.form.get('new_status')
+    order.status = new_status
+    db.session.commit()
+    return redirect(url_for('order_details', order_id=order_id))
 
 
 # Обработка ошибки 404 (Page Not Found)
