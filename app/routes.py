@@ -1,11 +1,13 @@
+import os
 from collections import Counter
-from flask import abort, render_template, redirect, url_for, request, session, flash
+from flask import abort, render_template, redirect, url_for, request, session, flash, send_file, send_from_directory
 from sqlalchemy.exc import IntegrityError
 from .extensions import app, db
 from .models import Product, Category, Brand, Order, OrderItem
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from .models import User, Review
 from datetime import datetime
+from pdf_check import generate_invoice_pdf
 from werkzeug.security import generate_password_hash, check_password_hash
 
 login_manager = LoginManager()
@@ -385,6 +387,20 @@ def page_not_found(error):
 @app.errorhandler(403)
 def access_denied(error):
     return render_template('403.html'), 403
+
+
+@login_required
+@app.route('/generate_invoice/<int:order_id>')
+def generate_invoice(order_id):
+    order = Order.query.get(order_id)
+    if current_user.is_authenticated and order.user_id != current_user.id:
+        # Создайте PDF счета
+        pdf_file = generate_invoice_pdf(order)
+        # Отправьте файл пользователю
+        directory = os.path.dirname(os.path.abspath(pdf_file))
+        filename = os.path.basename(pdf_file)
+        return send_from_directory(directory, filename, as_attachment=True)
+    abort(404)
 
 
 app.jinja_env.filters['custom_date_format'] = custom_date_format
