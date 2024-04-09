@@ -393,13 +393,15 @@ def access_denied(error):
 @app.route('/generate_invoice/<int:order_id>')
 def generate_invoice(order_id):
     order = Order.query.get(order_id)
-    if current_user.is_authenticated and order.user_id != current_user.id:
-        # Создайте PDF счета
-        pdf_file = generate_invoice_pdf(order)
-        # Отправьте файл пользователю
-        directory = os.path.dirname(os.path.abspath(pdf_file))
-        filename = os.path.basename(pdf_file)
-        return send_from_directory(directory, filename, as_attachment=True)
+    if current_user.is_authenticated:
+        if order.user_id != current_user.id or current_user.role == 'admin':
+            # Создайте PDF счета
+            pdf_file = generate_invoice_pdf(order)
+            # Отправьте файл пользователю
+            directory = os.path.dirname(os.path.abspath(pdf_file))
+            filename = os.path.basename(pdf_file)
+            return send_from_directory(directory, filename, as_attachment=True)
+        abort(404)
     abort(404)
 
 

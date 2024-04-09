@@ -52,6 +52,9 @@
         {% endfor %}
     </ul>
     <p>Итого: {{ order.total_amount }} ₽</p>
+    <form action="/generate_invoice/{{ order.id }}">
+        <button type="submit" class="custom-button">Получить выписку заказа</button>
+    </form>
     {% if role %}
     <form action="{{ url_for('change_order_status', order_id=order.id) }}" method="post">
         <label for="new_status">Новый статус:</label>
