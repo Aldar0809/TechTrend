@@ -4,3 +4,4 @@ Werkzeug
 flask_sqlalchemy
 flask_login
 reportlab
+flask_restful
