@@ -402,7 +402,7 @@ def access_denied(error):
 def generate_invoice(order_id):
     order = Order.query.get(order_id)
     if current_user.is_authenticated:
-        if order.user_id != current_user.id or current_user.role == 'admin':
+        if order.user_id == current_user.id or current_user.role == 'admin':
             # Создайте PDF счета
             pdf_file = generate_invoice_pdf(order)
             # Отправьте файл пользователю
