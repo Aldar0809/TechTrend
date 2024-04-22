@@ -80,6 +80,9 @@
                <a href="/">Главная</a>
                {% if current_user.is_authenticated %}
                    <a href="/orders">Заказы</a>
+                   {% if role %}
+                       <a href="/products">Продукты</a>
+                   {% endif %}
                    <a href="/account">Профиль</a>
                    <a href="/cart">Корзина {% if cart_count > 0 %} ({{ cart_count }}) {% endif %}</a>
                    <a href="/logout">Выход</a>

@@ -102,6 +102,11 @@ def account():
 
 @app.route('/')
 def index():
+    role = False
+    if current_user.is_authenticated:
+        if current_user.role == 'admin':
+            role = True
+
     category_id = request.args.get('category')
     brand_id = request.args.get('brand')
 
@@ -121,13 +126,16 @@ def index():
     categories = Category.query.all()
     brands = Brand.query.all()
 
-    return render_template('index.html', cart_count=cart_count, products=products, categories=categories, brands=brands)
+    return render_template('index.html', cart_count=cart_count, products=products, categories=categories, brands=brands, role=role)
 
 
 @login_required
 @app.route('/products')
 def product_list():
-    if current_user.role != 'admin':
+    if current_user.is_authenticated:
+        if current_user.role != 'admin':
+            abort(403)
+    else:
         abort(403)
     products = Product.query.all()
     return render_template('product_list.html', products=products)
